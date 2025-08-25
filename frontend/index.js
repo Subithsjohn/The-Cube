@@ -1,25 +1,50 @@
-import * as THREE from "three";
+/**
+ * Cube Controller App using Three.js
+ * 
+ * This script renders a textured cube in 3D space using Three.js
+ * and allows interaction through keyboard, mouse, and API calls.
+ * 
+ * Features:
+ * - OrbitControls for rotating the scean
+ * - Textured cube (grass block style, like minecraft)
+ * - Adjustable rotation (up, down, left, right, reset)
+ * - Save & reset cube state using backend API 
+ * 
+ * Dependencies:
+ * - Three.js
+ * - OrbitControls (from three.js examples)
+ * 
+ * Author: Subith S John
+ * Date: 25-08-2025
+ */import * as THREE from "three";
 import { OrbitControls } from "jsm/controls/OrbitControls.js";
 
+// Global Settings
 let rotationSpeed = 0.01;
 
+// Renderer Setup
 const w = window.innerWidth;
 const h = window.innerHeight;
+
+// Create Renderer and add to DOM
 const renderer = new THREE.WebGLRenderer( { antialias : true}) ; 
 renderer.setSize(w,h);
 document.body.appendChild(renderer.domElement);     
 
+// Camera Setup
 const fov = 75;
 const aspect = w/h;
 const near = 0.1;
 const far = 10;
+
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.z = 2;
 
+// Scene and object Setup
 const scene = new THREE.Scene();
 
+// Load textures (Minecraft grass block style)
 const loader = new THREE.TextureLoader();
-
 const textures = [
   loader.load("../Textures/Grass_block_side.png"),   // right
   loader.load("../Textures/Grass_block_side.png"),   // left
@@ -29,45 +54,47 @@ const textures = [
   loader.load("../Textures/Grass_block_side.png")    // back
 ];
 
+// Apply textures to cube faces
 const materials = textures.map(tex => new THREE.MeshStandardMaterial({ map: tex }));
 
+// Create cube geometry and mesh
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 const cube = new THREE.Mesh(geometry, materials);
 scene.add(cube);
 
-
+// OrbitControls for mouse interaction
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
-
+// Lighting
 const pointLight = new THREE.AmbientLight(0xffffff, 0.9);
 pointLight.position.set(0, 3, 3);
 scene.add(pointLight);
 
+// initialization
 loadInitialState();
 animate();
-function changespeed() {
 
-}
+// Function to handle button clicks and move the cube(up, down, left, right, reset)
 function getvalue(buttonElement) {
   const direction = buttonElement?.id || 'reset';
   switch (direction) {
     case 'up':
         cube.position.y += 0.05;
-      console.log('Moving up! ⬆️');
+      console.log('Moving up!');
       break;
     case 'down':
         cube.position.y -= 0.05;
-      console.log('Moving down! ⬇️');
+      console.log('Moving down!');
       break;
     case 'left':
         cube.position.x -= 0.05;
-      console.log('Moving left! ⬅️');
+      console.log('Moving left!');
       break;
     case 'right':
         cube.position.x += 0.05;
-      console.log('Moving right! ➡️');
+      console.log('Moving right!');
       break;
     case 'reset':
         cube.position.x = 0;
@@ -75,8 +102,8 @@ function getvalue(buttonElement) {
         cube.position.z = 0;
       rotationSpeed = 0.01; 
       const speedSlider = document.getElementById("speed");
+      // Reset slider to default position
       if (speedSlider) speedSlider.value = 1; 
-
       console.log('Resetting to default! ');
       setStatus("Reset to default state.");
       break;
@@ -88,6 +115,7 @@ function getvalue(buttonElement) {
   }
 }
 
+/** save cube sate to backend. */
 
 window.saveValue = async function saveValue() {
   try {
@@ -115,6 +143,8 @@ window.saveValue = async function saveValue() {
   }
 }
 
+/** Reset cube to initial state from backend */
+
 window.resetPre = async function resetPre() {
   try {
     const res = await fetch("http://localhost:5000/api/cube/cube_1/reset", {
@@ -134,7 +164,7 @@ window.resetPre = async function resetPre() {
   }
 }
 
-
+// Load initial state from backend
 async function loadInitialState() {
   try {
   
@@ -163,6 +193,7 @@ async function loadInitialState() {
   }
 }
 
+// Upadate status message in the UI
 function setStatus(msg) {
   const status = document.getElementById("status");
   if (status) {
@@ -172,16 +203,17 @@ function setStatus(msg) {
   }
 }
 
-
+// Expose getvalue to global scope for button onclick
 window.getvalue = getvalue;
 
+// Handle rotation speed change from slider
 function handleSpeedChange(value) { 
   rotationSpeed = parseFloat(value) * 0.01;
 }
 
+// Setup event listener for speed slider
 document.addEventListener('DOMContentLoaded', () => {
   const speedSlider = document.getElementById('speed');
- 
   if (speedSlider) {
     speedSlider.addEventListener('input', (event) => {
       handleSpeedChange(event.target.value);
@@ -190,12 +222,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Animation loop
 function animate(c = 0) {
     requestAnimationFrame(animate);
     cube.rotation.y += rotationSpeed;
     cube.rotation.z += rotationSpeed;
     cube.rotation.x += rotationSpeed;
    
+    // Render the scene
     renderer.render(scene, camera);
     controls.update();
 }
