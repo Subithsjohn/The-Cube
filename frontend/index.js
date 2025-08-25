@@ -108,7 +108,7 @@ function getvalue(buttonElement) {
       setStatus("Reset to default state.");
       break;
     case 'save':
-      console.log('Saving! 💾');
+      console.log('Saving!');
       break;
     default:
       console.log('Invalid direction.');
@@ -156,11 +156,11 @@ window.resetPre = async function resetPre() {
       rotationSpeed = data.cube.rotationSpeed;
       const speedSlider = document.getElementById("speed");
       if (speedSlider) speedSlider.value = rotationSpeed / 0.01;
-      setStatus("Cube reset 🔄");
+      setStatus("Cube reset ");
     }
   } catch (err) {
     console.error("Error resetting cube:", err);
-    setStatus("Reset failed ❌");
+    setStatus("Reset failed ");
   }
 }
 
@@ -182,14 +182,14 @@ async function loadInitialState() {
       const speedSlider = document.getElementById("speed");
       if (speedSlider) speedSlider.value = rotationSpeed / 0.01;
       
-      setStatus("Loaded last saved state. ✅");
+      setStatus("Loaded last saved state. ");
       console.log("Loaded initial state:", data.cube);
     } else {
         setStatus("No saved state found. Starting fresh.")
     }
   } catch (err) {
     console.error("Could not load initial state:", err);
-    setStatus("Could not connect to server. 🔌");
+    setStatus("Could not connect to server. ");
   }
 }
 
