@@ -18,27 +18,32 @@ camera.position.z = 2;
 
 const scene = new THREE.Scene();
 
-const geometry = new THREE.BoxGeometry( 1, 1, 1, ); 
-const material = new THREE.MeshStandardMaterial( {color: 0xffffff, flatShading : true} ); 
-const cube = new THREE.Mesh( geometry, material ); 
-scene.add( cube );
+const loader = new THREE.TextureLoader();
 
+const textures = [
+  loader.load("../Textures/Grass_block_side.png"),   // right
+  loader.load("../Textures/Grass_block_side.png"),   // left
+  loader.load("../Textures/Grass_block_top.png"),    // top
+  loader.load("../Textures/Grass_block_bottom.png"), // bottom
+  loader.load("../Textures/Grass_block_side.png"),   // front
+  loader.load("../Textures/Grass_block_side.png")    // back
+];
 
-const wireMat = new THREE.MeshBasicMaterial({
-    color : 0xffffff,
-    wireframe : true
-});
+const materials = textures.map(tex => new THREE.MeshStandardMaterial({ map: tex }));
+
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const cube = new THREE.Mesh(geometry, materials);
+scene.add(cube);
+
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
-const wireMesh = new THREE.Mesh(geometry, wireMat);
-wireMesh.scale.setScalar(1.001);
-cube.add(wireMesh);
 
-const hemilight = new THREE.HemisphereLight(0x0099ff, 0xaa5500);
-scene.add(hemilight);
+const pointLight = new THREE.AmbientLight(0xffffff, 0.9);
+pointLight.position.set(0, 3, 3);
+scene.add(pointLight);
 
 loadInitialState();
 animate();
@@ -70,7 +75,7 @@ function getvalue(buttonElement) {
         cube.position.z = 0;
       rotationSpeed = 0.01; 
       const speedSlider = document.getElementById("speed");
-      if (speedSlider) speedSlider.value = 1; // 1 * 0.01 = 0.01
+      if (speedSlider) speedSlider.value = 1; 
 
       console.log('Resetting to default! ');
       setStatus("Reset to default state.");
@@ -83,7 +88,7 @@ function getvalue(buttonElement) {
   }
 }
 
-// Make sure saveValue is in the global scope
+
 window.saveValue = async function saveValue() {
   try {
     const res = await fetch("http://localhost:5000/api/cube/cube_1/save", {
@@ -129,21 +134,21 @@ window.resetPre = async function resetPre() {
   }
 }
 
-// NEW FUNCTION to load the last saved state when the page starts
+
 async function loadInitialState() {
   try {
-    // We fetch the saved state from the same endpoint as the reset button
+  
     const res = await fetch("http://localhost:5000/api/cube/cube_1/reset", {
       method: "POST" 
     });
     const data = await res.json();
     if (data.success && data.cube) {
-      // Apply the fetched position and speed
+      
       cube.position.set(0,0,0);
-      //cube.position.set(data.cube.position.x, data.cube.position.y, data.cube.position.z);
+      
       rotationSpeed = data.cube.rotationSpeed;
 
-      // Also update the slider to match the loaded speed
+      
       const speedSlider = document.getElementById("speed");
       if (speedSlider) speedSlider.value = rotationSpeed / 0.01;
       
@@ -163,7 +168,7 @@ function setStatus(msg) {
   if (status) {
     status.innerText = msg;
   } else {
-    console.log("STATUS:", msg); // fallback if no <p id="status">
+    console.log("STATUS:", msg); 
   }
 }
 
