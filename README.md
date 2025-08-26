@@ -20,7 +20,7 @@ It renders a textured cube (Grass block) and allows you to:
 ### 1. Clone the repo
 ```bash
 git clone https://github.com/Subithsjohn/The-Cube.git
-cd cube-controller
+cd The-cube
 ```
 ### 2. Install dependencies
 
